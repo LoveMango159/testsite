@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>버스 하차벨 시뮬레이터</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; background-color: #f5f5f5; }
+    .stop-list { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+    .stop { position: relative; padding: 10px 20px; border: 1px solid #ccc; margin: 5px 0; border-radius: 5px; background: white; width: 200px; text-align: center; }
+    .stop.destination { background: #007bff; color: white; }
+    .stop.bell-soon::after {
+      content: '🔔';
+      position: absolute;
+      right: -30px;
+      top: 10px;
+      font-size: 20px;
+      color: red;
+    }
+    .bus-icon {
+      font-size: 24px;
+      margin: 5px 0;
+      transition: all 0.3s ease;
+    }
+    .bell {
+      font-size: 30px;
+      margin-top: 20px;
+      color: gray;
+    }
+    .bell.ringing {
+      color: red;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 15px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>버스 하차벨 시뮬레이터</h1>
+  <div id="controls">
+    <button onclick="startBus()">🚍 버스 출발</button>
+  </div>
+  <div class="stop-list" id="stopList"></div>
+  <div class="bell" id="bellIcon">🔔</div>
+
+  <script>
+    const stops = [
+      '웨인스코트호텔',
+      '대화교통사무실',
+      'GS자이아파트후문',
+      'GS자이아파트정문',
+      '한라아파트.대송중학교후문',
+      '대송중학교',
+      '현대파크아파트.양우아파트',
+      '송포파출소.송포농협',
+      '건설산업혁신센터',
+      '대화중학교.종합운동장',
+      '대화역',
+      '장성초교',
+      '대진고등학교',
+      '성저공원.대화동행정복지센터',
+      '성저마을13.14단지',
+      '신일비즈니스고등학교',
+      '동해운수',
+      '동문태영아파트',
+      '일산시장',
+      '현대홈타운',
+      '산들마을5단지'    
+    ];
+
+    let destinationIndex = -1;
+    let currentStopIndex = -1;
+    let busRunning = false;
+    const stopListDiv = document.getElementById('stopList');
+    const bellIcon = document.getElementById('bellIcon');
+
+    function renderStops() {
+      stopListDiv.innerHTML = '';
+      stops.forEach((stop, index) => {
+        const div = document.createElement('div');
+        div.className = 'stop';
+        div.textContent = stop;
+        if (index === destinationIndex) div.classList.add('destination');
+        if (index === destinationIndex - 1 && currentStopIndex === index) div.classList.add('bell-soon');
+        if (index === currentStopIndex) {
+          const busIcon = document.createElement('div');
+          busIcon.textContent = '🚌';
+          busIcon.className = 'bus-icon';
+          div.appendChild(busIcon);
+        }
+        div.onclick = () => {
+          if (!busRunning) {
+            destinationIndex = index;
+            renderStops();
+          }
+        };
+        stopListDiv.appendChild(div);
+      });
+    }
+
+    function startBus() {
+      if (destinationIndex === -1) {
+        alert('도착지를 먼저 선택하세요.');
+        return;
+      }
+      if (busRunning) return;
+      busRunning = true;
+      moveBus();
+    }
+
+    function moveBus() {
+      if (currentStopIndex >= stops.length - 1) return;
+      currentStopIndex++;
+      renderStops();
+      if (currentStopIndex === destinationIndex - 1) {
+        setTimeout(() => {
+          bellIcon.classList.add('ringing');
+        }, 10000);
+      }
+      if (currentStopIndex < destinationIndex) {
+        setTimeout(moveBus, 2000);
+      }
+    }
+
+    renderStops();
+  </script>
+</body>
+</html>
+
